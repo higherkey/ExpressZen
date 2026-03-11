@@ -1,0 +1,83 @@
+@using ExpressZen.Client.Services
+@inject IAiAssistantService AiService
+
+<div class="row" style="margin-bottom: 2rem;">
+    <div class="column">
+        <h3>AI Assistant</h3>
+        @if (!AiService.IsConfigured)
+        {
+            <div style="background-color: #f4f5f6; padding: 2rem; border-radius: 4px;">
+                <h4>Configure AI Provider</h4>
+                <p>Welcome to ExpressZen! To use AI features like <strong>Infer Data, Explain, and the Regex Builder</strong>, you must provide an API key. This key is used temporarily for this session and never sent to our servers.</p>
+                <div class="row">
+                    <div class="column column-25">
+                        <select @bind="SelectedProvider" style="margin-bottom: 0;">
+                            <option value="GoogleGemini">Google Gemini</option>
+                            <option value="Anthropic">Anthropic Claude</option>
+                            <option value="OpenAi">OpenAI GPT</option>
+                        </select>
+                    </div>
+                    <div class="column column-55">
+                        <input type="password" @bind="ApiKey" placeholder="API Key..." style="margin-bottom: 0;" />
+                    </div>
+                    <div class="column column-20">
+                        <button class="button" @onclick="SaveKey" style="width: 100%;">Save Key</button>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div style="background-color: #f4f5f6; padding: 2rem; border-radius: 4px; border-left: 4px solid #9b4dca;">
+                <h4>✨ Describe your regex</h4>
+                <div class="row">
+                    <div class="column column-80">
+                        <input type="text" @bind="Description" placeholder="e.g. A strong password with at least 8 chars, 1 uppercase, 1 number..." style="margin-bottom: 0;" />
+                    </div>
+                    <div class="column column-20">
+                        <button class="button button-outline" @onclick="BuildRegexAsync" disabled="@IsBuilding" style="width: 100%; color: #9b4dca; border-color: #9b4dca;">
+                            @(IsBuilding ? "Generating..." : "✨ Generate")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnPatternGenerated { get; set; }
+
+    private string SelectedProvider { get; set; } = "GoogleGemini";
+    private string ApiKey { get; set; } = string.Empty;
+    private string Description { get; set; } = string.Empty;
+    private bool IsBuilding { get; set; }
+
+    private void SaveKey()
+    {
+        if (!string.IsNullOrWhiteSpace(ApiKey))
+        {
+            var provider = Enum.Parse<AiProvider>(SelectedProvider);
+            AiService.ConfigureApiKey(provider, ApiKey);
+        }
+    }
+
+    private async Task BuildRegexAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Description)) return;
+        
+        IsBuilding = true;
+        var pattern = await AiService.BuildRegexAsync(Description);
+        
+        // Naive clean for raw pattern
+        pattern = pattern.Replace("```regex\n", "").Replace("```", "").Trim();
+        if (pattern.StartsWith("`") && pattern.EndsWith("`"))
+        {
+            pattern = pattern.Substring(1, pattern.Length - 2);
+        }
+        
+        await OnPatternGenerated.InvokeAsync(pattern);
+        IsBuilding = false;
+    }
+}

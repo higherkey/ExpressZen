@@ -1,0 +1,66 @@
+<div class="row" style="margin-top: 3rem;">
+    <div class="column">
+        <h3>"Escaping Hell" Translator</h3>
+        <p>Drop your working regex here to see exactly how to format it as a C# string literal.</p>
+        
+        <label>Raw Pattern (from Workspace)</label>
+        <input type="text" @bind="Pattern" @bind:event="oninput" placeholder="e.g. \d+\.\d+" style="font-family: monospace;" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="column">
+        <label>C# Verbatim String (<strong>@@"..."</strong>)</label>
+        <pre><code class="language-csharp">string pattern = @@"@EscapeVerbatim(Pattern)";</code></pre>
+
+        <label>C# Regular String (<strong>"..."</strong>)</label>
+        <pre><code class="language-csharp">string pattern = "@EscapeRegular(Pattern)";</code></pre>
+
+        <label>C# 11+ Raw String Literal (<strong>"""..."""</strong>)</label>
+        <pre><code class="language-csharp">string pattern = """@Pattern""";</code></pre>
+    </div>
+    
+    <div class="column">
+        <label>Usage Example</label>
+        <pre><code class="language-csharp">using System.Text.RegularExpressions;
+
+// 1. Define Pattern
+string pattern = @@"@EscapeVerbatim(Pattern)";
+
+// 2. Sample Input
+string input = "Your test string here";
+
+// 3. Execution (with ReDoS protection)
+TimeSpan timeout = TimeSpan.FromMilliseconds(500);
+
+// Check if it matches anywhere
+bool isMatch = Regex.IsMatch(input, pattern, RegexOptions.None, timeout);
+
+// Get all matches
+MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.None, timeout);
+foreach (Match match in matches)
+{
+    Console.WriteLine($"Found: {match.Value} at index {match.Index}");
+}
+</code></pre>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Pattern { get; set; } = string.Empty;
+
+    private string EscapeVerbatim(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+        // Verbatim strings only need double quotes escaped
+        return input.Replace("\"", "\"\"");
+    }
+
+    private string EscapeRegular(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+        // Regular strings literally need EVERYTHING escaped (the absolute hell)
+        return input.Replace("\\", "\\\\").Replace("\"", "\\\"");
+    }
+}

@@ -1,0 +1,197 @@
+@using ExpressZen.Client.Models
+@using ExpressZen.Client.Services
+@inject IRegexEngine Engine
+@inject IAiAssistantService AiService
+
+<div class="row">
+    <div class="column">
+        <label for="patternInput">Regular Expression</label>
+        <input type="text" id="patternInput" value="@Pattern" @oninput="OnPatternInputAsync" placeholder="e.g. ^\w+@@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$" style="font-family: monospace; font-size: 1.25em;" />
+        <p><small style="color: #606c76;">Powered by <strong>@Engine.EngineName</strong> @(ExecutionTime.TotalMilliseconds > 0 ? $"- Executed in {ExecutionTime.TotalMilliseconds}ms" : "")</small></p>
+        @if (!string.IsNullOrEmpty(GlobalError))
+        {
+            <div style="color: #D32F2F; border: 1px solid #FFCDD2; background-color: #FFEBEE; padding: 1rem; margin-bottom: 2rem;">
+                <strong>Error:</strong> @GlobalError
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <!-- MUST MATCH COLUMN -->
+    <div class="column">
+        <h4 style="color: #2E7D32;">Must Match</h4>
+        <div style="border-top: 2px solid #4CAF50; padding-top: 1rem;">
+            @foreach (var item in MustMatchItems)
+            {
+                <div class="row" style="margin-bottom: 1rem; align-items: center;">
+                    <div class="column column-80">
+                        <input type="text" @bind="item.Text" @bind:event="oninput" placeholder="Enter valid test string" style="margin-bottom: 0; font-family: monospace; @GetStyle(item)" />
+                    </div>
+                    <div class="column column-20">
+                        <button class="button button-clear" style="color: #D32F2F;" @onclick="() => MustMatchItems.Remove(item)">X</button>
+                    </div>
+                </div>
+            }
+            <div class="row" style="margin-top: 1rem;">
+                <div class="column column-50">
+                    <button class="button button-outline" @onclick="AddMustMatch" style="width: 100%; border-color: #4CAF50; color: #4CAF50;">+ Add Test Case</button>
+                </div>
+                <div class="column column-50">
+                     <button class="button button-outline" @onclick="InferMustMatchAsync" disabled="@IsInferringMatches" style="width: 100%; border-color: #9b4dca; color: #9b4dca;">
+                         @(IsInferringMatches ? "Inferring..." : "✨ Infer Data")
+                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MUST NOT MATCH COLUMN -->
+    <div class="column">
+        <h4 style="color: #D32F2F;">Must NOT Match</h4>
+        <div style="border-top: 2px solid #F44336; padding-top: 1rem;">
+            @foreach (var item in MustNotMatchItems)
+            {
+                <div class="row" style="margin-bottom: 1rem; align-items: center;">
+                    <div class="column column-80">
+                         <input type="text" @bind="item.Text" @bind:event="oninput" placeholder="Enter invalid test string" style="margin-bottom: 0; font-family: monospace; @GetStyle(item)" />
+                    </div>
+                    <div class="column column-20">
+                        <button class="button button-clear" style="color: #D32F2F;" @onclick="() => MustNotMatchItems.Remove(item)">X</button>
+                    </div>
+                </div>
+            }
+            <div class="row" style="margin-top: 1rem;">
+                <div class="column column-50">
+                    <button class="button button-outline" @onclick="AddMustNotMatch" style="width: 100%; border-color: #F44336; color: #F44336;">+ Add Test Case</button>
+                </div>
+                <div class="column column-50">
+                     <button class="button button-outline" @onclick="InferMustNotMatchAsync" disabled="@IsInferringNonMatches" style="width: 100%; border-color: #9b4dca; color: #9b4dca;">
+                         @(IsInferringNonMatches ? "Inferring..." : "✨ Infer Data")
+                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr style="margin: 4rem 0;" />
+
+<LiteralTranslator Pattern="@Pattern" />
+
+@code {
+    [Parameter]
+    public string Pattern { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> PatternChanged { get; set; }
+
+    public async Task ForceEvaluateAsync() => await EvaluateAllAsync();
+
+    private async Task OnPatternInputAsync(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString() ?? string.Empty;
+        Pattern = val;
+        await PatternChanged.InvokeAsync(val);
+        await EvaluateAllAsync();
+    }
+
+    public string GlobalError { get; set; } = string.Empty;
+    public TimeSpan ExecutionTime { get; set; } = TimeSpan.Zero;
+
+    private List<TestData> MustMatchItems = new()
+    {
+        new TestData { ExpectedToMatch = true, Text = "test@example.com" }
+    };
+
+    private List<TestData> MustNotMatchItems = new()
+    {
+        new TestData { ExpectedToMatch = false, Text = "invalid-email" }
+    };
+
+    private void AddMustMatch() => MustMatchItems.Add(new TestData { ExpectedToMatch = true });
+    private void AddMustNotMatch() => MustNotMatchItems.Add(new TestData { ExpectedToMatch = false });
+
+    // Ensures we evaluate automatically when strings themselves change in the UI.
+    // In a real app we'd attach a property changed observer, but for Blazor input events this is close.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await EvaluateAllAsync();
+        }
+    }
+
+    private async Task EvaluateAllAsync()
+    {
+        GlobalError = string.Empty;
+        var totalTime = TimeSpan.Zero;
+
+        foreach (var item in MustMatchItems.Concat(MustNotMatchItems))
+        {
+            if (string.IsNullOrWhiteSpace(item.Text)) 
+            {
+                item.Result = null;
+                continue;
+            }
+
+            var result = await Engine.EvaluateAsync(Pattern, item.Text);
+            item.Result = result;
+            
+            if (!string.IsNullOrEmpty(result.ErrorMessage) && string.IsNullOrEmpty(GlobalError))
+            {
+                GlobalError = result.ErrorMessage;
+            }
+
+            totalTime += result.ExecutionTime;
+        }
+
+        ExecutionTime = totalTime;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string GetStyle(TestData item)
+    {
+        if (item.Result == null || string.IsNullOrWhiteSpace(Pattern) || string.IsNullOrWhiteSpace(item.Text)) 
+            return "background-color: transparent;";
+
+        if (item.Result.ErrorMessage != string.Empty)
+            return "background-color: transparent; border-color: #D32F2F;";
+
+        var passed = item.Result.IsMatch == item.ExpectedToMatch;
+        return passed ? "background-color: #E8F5E9; border-color: #4CAF50;" : "background-color: #FFEBEE; border-color: #F44336;";
+    }
+
+    private bool IsInferringMatches = false;
+    private bool IsInferringNonMatches = false;
+
+    private async Task InferMustMatchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Pattern)) return;
+        IsInferringMatches = true;
+        
+        var generated = await AiService.GenerateTestDataAsync(Pattern, true);
+        foreach (var text in generated)
+        {
+            MustMatchItems.Add(new TestData { ExpectedToMatch = true, Text = text });
+        }
+        
+        await EvaluateAllAsync();
+        IsInferringMatches = false;
+    }
+
+    private async Task InferMustNotMatchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Pattern)) return;
+        IsInferringNonMatches = true;
+        
+        var generated = await AiService.GenerateTestDataAsync(Pattern, false);
+        foreach (var text in generated)
+        {
+            MustNotMatchItems.Add(new TestData { ExpectedToMatch = false, Text = text });
+        }
+        
+        await EvaluateAllAsync();
+        IsInferringNonMatches = false;
+    }
+}

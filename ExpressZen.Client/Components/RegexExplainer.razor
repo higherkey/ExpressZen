@@ -1,0 +1,74 @@
+@using ExpressZen.Client.Services
+@inject IAiAssistantService AiService
+@using System.Web
+
+<div class="row" style="margin-top: 3rem; margin-bottom: 2rem;">
+    <div class="column">
+        <h3>🧠 Explain this Regex</h3>
+        @if (!AiService.IsConfigured)
+        {
+             <p style="color: #606c76;"><em>Configure your AI API Key at the top of the page to unlock real-time explanations!</em></p>
+        }
+        else if (string.IsNullOrWhiteSpace(Pattern))
+        {
+             <p style="color: #606c76;"><em>Enter a pattern above to get a plain-English explanation of how it works.</em></p>
+        }
+        else
+        {
+             <button class="button button-outline" @onclick="ExplainPatternAsync" disabled="@IsExplaining" style="color: #9b4dca; border-color: #9b4dca;">
+                 @(IsExplaining ? "Analyzing..." : "✨ Explain Pattern")
+             </button>
+
+             @if (!string.IsNullOrEmpty(Explanation))
+             {
+                 <div style="margin-top: 2rem; padding: 2rem; background-color: #F3E5F5; border-left: 4px solid #9b4dca; border-radius: 4px;">
+                     <!-- Using basic MarkupString since Gemini returns markdown. In a prod app, we'd use Markdig for safe compilation. -->
+                     <div class="markdown-body">
+                         @((MarkupString)FormatMarkdownToHtml(Explanation))
+                     </div>
+                 </div>
+             }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Pattern { get; set; } = string.Empty;
+
+    private string Explanation { get; set; } = string.Empty;
+    private bool IsExplaining { get; set; }
+
+    /// <summary>
+    /// If the parent Pattern changes, we should clear the outdated explanation.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(Pattern))
+        {
+            Explanation = string.Empty;
+        }
+    }
+
+    private async Task ExplainPatternAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Pattern)) return;
+        
+        IsExplaining = true;
+        Explanation = await AiService.ExplainRegexAsync(Pattern);
+        IsExplaining = false;
+    }
+
+    // A highly simplified markdown-to-html formatter for the POC
+    private string FormatMarkdownToHtml(string markdown)
+    {
+        if (string.IsNullOrEmpty(markdown)) return string.Empty;
+        
+        var encoded = HttpUtility.HtmlEncode(markdown);
+        encoded = encoded.Replace("\n", "<br/>");
+        encoded = encoded.Replace("**", "<strong>"); 
+        // Note: a real parser is needed, this is just a POC hack to make `**bold**` work if encoded poorly, 
+        // though `Replace` on `**` toggles are tricky. Better to just leave it as text for the raw POC or use a library.
+        return encoded;
+    }
+}

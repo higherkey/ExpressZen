@@ -1,0 +1,40 @@
+﻿@page "/"
+@using ExpressZen.Client.Components
+
+<PageTitle>ExpressZen - Build & Understand Regex</PageTitle>
+
+<AiBuilder OnPatternGenerated="HandlePatternGenerated" />
+
+<hr style="margin: 4rem 0;" />
+
+<RegexWorkspace @ref="workspace" Pattern="@Pattern" PatternChanged="OnPatternChanged" />
+
+<hr style="margin: 4rem 0;" />
+
+<div class="row">
+    <div class="column column-60">
+        <RegexExplainer Pattern="@Pattern" />
+    </div>
+    <div class="column column-40" style="border-left: 1px solid #e1e1e1; padding-left: 2rem;">
+        <InteractiveReference />
+    </div>
+</div>
+
+@code {
+    private string Pattern { get; set; } = string.Empty;
+    private RegexWorkspace workspace = default!;
+
+    private async Task HandlePatternGenerated(string newPattern)
+    {
+        Pattern = newPattern;
+        if (workspace != null)
+        {
+            await workspace.ForceEvaluateAsync();
+        }
+    }
+
+    private void OnPatternChanged(string newPattern)
+    {
+        Pattern = newPattern;
+    }
+}
