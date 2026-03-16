@@ -21,7 +21,7 @@
 
              @if (!string.IsNullOrEmpty(Explanation))
              {
-                 <div style="margin-top: 2rem; padding: 2rem; background-color: #F3E5F5; border-left: 4px solid #9b4dca; border-radius: 4px;">
+                 <div style="margin-top: 2rem; padding: 2rem; background-color: #1e1e1e; border-left: 4px solid #bb86fc; border-top: 1px solid #333; border-right: 1px solid #333; border-bottom: 1px solid #333; border-radius: 4px;">
                      <!-- Using basic MarkupString since Gemini returns markdown. In a prod app, we'd use Markdig for safe compilation. -->
                      <div class="markdown-body">
                          @((MarkupString)FormatMarkdownToHtml(Explanation))

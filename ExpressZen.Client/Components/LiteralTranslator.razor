@@ -1,48 +1,47 @@
-<div class="row" style="margin-top: 3rem;">
-    <div class="column">
-        <h3>"Escaping Hell" Translator</h3>
-        <p>Drop your working regex here to see exactly how to format it as a C# string literal.</p>
-        
-        <label>Raw Pattern (from Workspace)</label>
-        <input type="text" @bind="Pattern" @bind:event="oninput" placeholder="e.g. \d+\.\d+" style="font-family: monospace;" />
+<div style="background-color: #1e1e1e; border: 1px solid #333; border-radius: 4px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+    <div style="border-bottom: 1px solid #333; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+        <h4 style="color: #bb86fc; font-weight: bold; margin: 0; font-size: 1.2rem;">"Escaping Hell" Translator</h4>
+        <p style="color: #888; font-size: 0.85rem; margin: 0; margin-top: 0.5rem;">Formats your regex for use as C# string literals.</p>
     </div>
-</div>
 
-<div class="row">
-    <div class="column">
-        <label>C# Verbatim String (<strong>@@"..."</strong>)</label>
-        <pre><code class="language-csharp">string pattern = @@"@EscapeVerbatim(Pattern)";</code></pre>
-
-        <label>C# Regular String (<strong>"..."</strong>)</label>
-        <pre><code class="language-csharp">string pattern = "@EscapeRegular(Pattern)";</code></pre>
-
-        <label>C# 11+ Raw String Literal (<strong>"""..."""</strong>)</label>
-        <pre><code class="language-csharp">string pattern = """@Pattern""";</code></pre>
+    <!-- Generated Strings -->
+    <div>
+        <label style="color: #ccc; font-size: 0.8rem; text-transform: uppercase;">C# Verbatim String (<strong>@@"..."</strong>)</label>
+        <div style="background-color: #121212; border: 1px solid #444; border-radius: 4px; padding: 0.5rem 1rem; overflow-x: auto;">
+            <code style="color: #e0e0e0; font-family: monospace; white-space: pre;"><span style="color: #569cd6;">string</span> pattern = <span style="color: #ce9178;">@@"@EscapeVerbatim(Pattern)"</span>;</code>
+        </div>
     </div>
-    
-    <div class="column">
-        <label>Usage Example</label>
-        <pre><code class="language-csharp">using System.Text.RegularExpressions;
 
-// 1. Define Pattern
-string pattern = @@"@EscapeVerbatim(Pattern)";
+    <div style="margin-top: 0.5rem;">
+        <label style="color: #ccc; font-size: 0.8rem; text-transform: uppercase;">C# Regular String (<strong>"..."</strong>)</label>
+        <div style="background-color: #121212; border: 1px solid #444; border-radius: 4px; padding: 0.5rem 1rem; overflow-x: auto;">
+            <code style="color: #e0e0e0; font-family: monospace; white-space: pre;"><span style="color: #569cd6;">string</span> pattern = <span style="color: #ce9178;">"@EscapeRegular(Pattern)"</span>;</code>
+        </div>
+    </div>
 
-// 2. Sample Input
-string input = "Your test string here";
+    <div style="margin-top: 0.5rem;">
+        <label style="color: #ccc; font-size: 0.8rem; text-transform: uppercase;">C# 11+ Raw String (<strong>"""..."""</strong>)</label>
+        <div style="background-color: #121212; border: 1px solid #444; border-radius: 4px; padding: 0.5rem 1rem; overflow-x: auto;">
+            <code style="color: #e0e0e0; font-family: monospace; white-space: pre;"><span style="color: #569cd6;">string</span> pattern = <span style="color: #ce9178;">"""@Pattern"""</span>;</code>
+        </div>
+    </div>
 
-// 3. Execution (with ReDoS protection)
-TimeSpan timeout = TimeSpan.FromMilliseconds(500);
+    <!-- Usage Example -->
+    <div style="margin-top: 1.5rem; border-top: 1px solid #333; padding-top: 1rem;">
+        <label style="color: #bbb; font-size: 0.85rem; text-transform: uppercase; font-weight: bold; margin-bottom: 0.5rem; display: block;">Usage Example (.NET 8)</label>
+        <div style="background-color: #121212; border: 1px solid #444; border-radius: 4px; padding: 1rem; overflow-x: auto;">
+<pre style="margin: 0; padding: 0; background: transparent; border: none; font-family: monospace; font-size: 0.85rem; color: #d4d4d4;"><span style="color: #c586c0;">using</span> System.Text.RegularExpressions;
 
-// Check if it matches anywhere
-bool isMatch = Regex.IsMatch(input, pattern, RegexOptions.None, timeout);
+<span style="color: #6a9955;">// 1. Define Pattern</span>
+<span style="color: #569cd6;">string</span> pattern = <span style="color: #ce9178;">@@"@EscapeVerbatim(Pattern)"</span>;
 
-// Get all matches
-MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.None, timeout);
-foreach (Match match in matches)
-{
-    Console.WriteLine($"Found: {match.Value} at index {match.Index}");
-}
-</code></pre>
+<span style="color: #6a9955;">// 2. Safe Execution (ReDoS protection)</span>
+<span style="color: #4ec9b0;">TimeSpan</span> timeout = <span style="color: #4ec9b0;">TimeSpan</span>.FromMilliseconds(500);
+
+<span style="color: #569cd6;">bool</span> isMatch = <span style="color: #4ec9b0;">Regex</span>.IsMatch(input, pattern, 
+    <span style="color: #4ec9b0;">RegexOptions</span>.None, timeout);
+</pre>
+        </div>
     </div>
 </div>
 

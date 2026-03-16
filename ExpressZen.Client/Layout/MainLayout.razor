@@ -1,20 +1,10 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-<div class="container">
-    <header class="row" style="margin-top: 2rem; margin-bottom: 2rem;">
-        <div class="column">
-            <h2>ExpressZen</h2>
-            <p><strong>An intuitive Regex testing & building tool.</strong></p>
-        </div>
-    </header>
-
-    <main>
+<div style="display: flex; flex-direction: column; min-height: 100vh; background-color: #121212;">
+    <!-- Unified Navbar moves to Home.razor for tab awareness -->
+    
+    <!-- Main Content Area with added margins -->
+    <main style="flex: 1; padding: 2rem; max-width: 100%; box-sizing: border-box;">
         @Body
     </main>
-
-    <footer class="row" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e1e1e1;">
-        <div class="column">
-            <p><small>Powered by .NET WebAssembly & Gemini AI</small></p>
-        </div>
-    </footer>
 </div>

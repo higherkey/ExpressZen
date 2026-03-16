@@ -5,45 +5,56 @@
 
         <div class="row">
             <div class="column">
-                <h5 style="color: #9b4dca;">Anchors</h5>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><code>^</code> Start of string or line</li>
-                    <li><code>$</code> End of string or line</li>
-                    <li><code>\b</code> Word boundary</li>
-                    <li><code>\B</code> Non-word boundary</li>
+                <h5 style="color: #bb86fc;">Anchors</h5>
+                <ul style="list-style-type: none; padding: 0; font-size: 1.1rem;">
+                    <li><code class="token-bg">^</code> Start of string or line</li>
+                    <li><code class="token-bg">$</code> End of string or line</li>
+                    <li><code class="token-bg">\b</code> Word boundary</li>
+                    <li><code class="token-bg">\B</code> Non-word boundary</li>
                 </ul>
             </div>
             
             <div class="column">
-                <h5 style="color: #9b4dca;">Character Classes</h5>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><code>.</code> Any character except newline</li>
-                    <li><code>\w</code> Word character (a-z, A-Z, 0-9, _)</li>
-                    <li><code>\d</code> Digit (0-9)</li>
-                    <li><code>\s</code> Whitespace</li>
+                <h5 style="color: #bb86fc;">Character Classes</h5>
+                <ul style="list-style-type: none; padding: 0; font-size: 1.1rem;">
+                    <li><code class="token-bg">.</code> Any character except newline</li>
+                    <li><code class="token-bg">\w</code> Word character</li>
+                    <li><code class="token-bg">\d</code> Digit (0-9)</li>
+                    <li><code class="token-bg">\s</code> Whitespace</li>
                 </ul>
             </div>
 
             <div class="column">
-                <h5 style="color: #9b4dca;">Quantifiers</h5>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><code>*</code> 0 or more</li>
-                    <li><code>+</code> 1 or more</li>
-                    <li><code>?</code> 0 or 1</li>
-                    <li><code>{3}</code> Exactly 3</li>
-                    <li><code>{3,}</code> 3 or more</li>
+                <h5 style="color: #bb86fc;">Quantifiers</h5>
+                <ul style="list-style-type: none; padding: 0; font-size: 1.1rem;">
+                    <li><code class="token-bg">*</code> 0 or more</li>
+                    <li><code class="token-bg">+</code> 1 or more</li>
+                    <li><code class="token-bg">?</code> 0 or 1</li>
+                    <li><code class="token-bg">{3}</code> Exactly 3</li>
+                    <li><code class="token-bg">{3,}</code> 3 or more</li>
                 </ul>
             </div>
             
             <div class="column">
-                <h5 style="color: #9b4dca;">Groups</h5>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><code>(abc)</code> Capture group</li>
-                    <li><code>(?:abc)</code> Non-capturing group</li>
-                    <li><code>[abc]</code> Any of a, b, or c</li>
-                    <li><code>[^abc]</code> Not a, b, or c</li>
+                <h5 style="color: #bb86fc;">Groups</h5>
+                <ul style="list-style-type: none; padding: 0; font-size: 1.1rem;">
+                    <li><code class="token-bg">(abc)</code> Capture group</li>
+                    <li><code class="token-bg">(?:abc)</code> Non-capturing group</li>
+                    <li><code class="token-bg">[abc]</code> Any of a, b, or c</li>
+                    <li><code class="token-bg">[^abc]</code> Not a, b, or c</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .token-bg {
+        background-color: #121212 !important;
+        border: 1px solid #333 !important;
+        color: #bb86fc !important;
+        padding: 0.2rem 0.6rem !important;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+    }
+</style>

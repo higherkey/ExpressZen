@@ -1,32 +1,92 @@
-﻿@page "/"
+@page "/"
 @using ExpressZen.Client.Components
 
 <PageTitle>ExpressZen - Build & Understand Regex</PageTitle>
 
-<AiBuilder OnPatternGenerated="HandlePatternGenerated" />
-
-<hr style="margin: 4rem 0;" />
-
-<RegexWorkspace @ref="workspace" Pattern="@Pattern" PatternChanged="OnPatternChanged" />
-
-<hr style="margin: 4rem 0;" />
-
-<div class="row">
-    <div class="column column-60">
-        <RegexExplainer Pattern="@Pattern" />
+<!-- Unified Top Navbar -->
+<header style="display: flex; justify-content: space-between; align-items: stretch; background-color: #1a1a1a; border-bottom: 1px solid #333; margin: -2rem -2rem 2rem -2rem; padding: 0 2rem; height: 3.5rem;">
+    <!-- Left: Branding & Tabs -->
+    <div style="display: flex; align-items: center; gap: 3rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <h3 style="margin: 0; font-weight: bold; color: #bb86fc; font-size: 1.5rem;">ExpressZen</h3>
+            <span style="background-color: #333; color: #aaa; font-size: 0.65rem; padding: 0.2rem 0.4rem; border-radius: 4px; font-weight: bold; letter-spacing: 1px; margin-top: 0.2rem;">BETA</span>
+        </div>
+        
+        <ul class="tabs" style="border: none; display: flex; height: 100%;">
+            <li class="tab-item @(CurrentTab == TabGroup.Workspace ? "active" : "")">
+                <a href="javascript:void(0)" @onclick="() => CurrentTab = TabGroup.Workspace">TDD Workspace</a>
+            </li>
+            <li class="tab-item @(CurrentTab == TabGroup.Builder ? "active" : "")">
+                <a href="javascript:void(0)" @onclick="() => CurrentTab = TabGroup.Builder">AI Builder</a>
+            </li>
+            <li class="tab-item @(CurrentTab == TabGroup.Learn ? "active" : "")">
+                <a href="javascript:void(0)" @onclick="() => CurrentTab = TabGroup.Learn">Learn & Reference</a>
+            </li>
+        </ul>
     </div>
-    <div class="column column-40" style="border-left: 1px solid #e1e1e1; padding-left: 2rem;">
-        <InteractiveReference />
+
+    <!-- Right: Flavor Selection -->
+    <div style="display: flex; align-items: center;">
+        <select style="margin: 0; background-color: #121212; color: #aaa; border: 1px solid #444; border-radius: 4px; padding: 0.4rem 1rem; font-size: 0.85rem; height: auto;">
+            <option value="dotnet">.NET 8.0 (C#) Engine</option>
+            <option value="more" disabled>More flavors coming soon...</option>
+        </select>
     </div>
+</header>
+
+<div class="tab-content" style="min-height: 60vh;">
+    @if (CurrentTab == TabGroup.Workspace)
+    {
+        <div class="fade-in">
+            <RegexWorkspace @ref="workspace" Pattern="@Pattern" PatternChanged="OnPatternChanged" />
+        </div>
+    }
+    else if (CurrentTab == TabGroup.Builder)
+    {
+        <div class="fade-in">
+            <AiBuilder OnPatternGenerated="HandlePatternGenerated" />
+        </div>
+    }
+    else if (CurrentTab == TabGroup.Learn)
+    {
+        <div class="row fade-in">
+            <div class="column column-60">
+                <RegexExplainer Pattern="@Pattern" />
+            </div>
+            <div class="column column-40" style="border-left: 1px solid #333; padding-left: 2rem;">
+                <InteractiveReference />
+            </div>
+        </div>
+    }
 </div>
 
+<style>
+    /* Milligram-compatible custom tab styles applied to header */
+    .tabs { display: flex; list-style: none; padding: 0; margin: 0; }
+    .tab-item { margin-bottom: 0; display: flex; align-items: center; }
+    .tab-item a { display: flex; align-items: center; padding: 0 1rem; height: 100%; color: #888; text-decoration: none; font-weight: bold; border-bottom: 3px solid transparent; transition: color 0.1s; }
+    .tab-item a:hover { color: #bb86fc; }
+    .tab-item.active a { color: #bb86fc; border-bottom: 3px solid #bb86fc; }
+    .fade-in { animation: fadeIn 0.3s; }
+    @@keyframes fadeIn { 0% { opacity: 0; transform: translateY(5px); } 100% { opacity: 1; transform: translateY(0); } }
+</style>
+
 @code {
+    private enum TabGroup { Workspace, Builder, Learn }
+    private TabGroup CurrentTab { get; set; } = TabGroup.Workspace;
+    
     private string Pattern { get; set; } = string.Empty;
-    private RegexWorkspace workspace = default!;
+    private RegexWorkspace? workspace;
 
     private async Task HandlePatternGenerated(string newPattern)
     {
         Pattern = newPattern;
+        CurrentTab = TabGroup.Workspace; // Auto-switch to workspace when generated
+        
+        // Let the UI render the workspace component first before trying to evaluate
+        StateHasChanged();
+        await Task.Delay(50); 
+        
         if (workspace != null)
         {
             await workspace.ForceEvaluateAsync();
