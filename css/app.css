@@ -1,13 +1,83 @@
-/* ExpressZen Custom Styles */
+html {
+    /* Scaling up base size to make everything larger */
+    font-size: 90%; 
+}
+
 body {
-    background-color: #fcfcfc;
-    color: #333;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-size: 1.6rem;
+}
+
+/* Override Milligram's default light-grey code styles for dark mode */
+code {
+    background: transparent !important;
+    color: #ce9178;
+    padding: 0.2rem 0.4rem;
+    margin: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+pre {
+    background: #1e1e1e !important;
+    border-left: 0.3rem solid #bb86fc;
+    border-radius: 4px;
+}
+
+pre > code {
+    background: transparent !important;
+    padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
     font-weight: 300;
 }
 
+/* Base input overrides for dark mode */
+input[type='email'], input[type='number'], input[type='password'], input[type='search'], input[type='tel'], input[type='text'], input[type='url'], input[type='color'], input[type='date'], input[type='month'], input[type='week'], input[type='datetime'], input[type='datetime-local'], input[type='time'], textarea, select {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    color: #eee;
+}
+
+input:focus, textarea:focus {
+    border-color: #bb86fc;
+}
+
+/* Tab overrides for dark mode */
+.tabs {
+    border-bottom: 2px solid #333 !important;
+}
+.tab-item a {
+    color: #888 !important;
+}
+.tab-item a:hover {
+    color: #bb86fc !important;
+}
+.tab-item.active a {
+    color: #bb86fc !important;
+    border-bottom: 2px solid #bb86fc !important;
+}
+
+hr {
+    border-top: .1rem solid #333;
+}
+
+.button.button-outline {
+    color: #bb86fc;
+    border-color: #bb86fc;
+}
+.button.button-outline:hover {
+    background-color: #bb86fc;
+    color: #121212;
+    border-color: #bb86fc;
+}
+.button.button-clear {
+    color: #bb86fc;
+}
+
+/* Loading progress */
 .loading-progress {
     position: relative;
     display: block;
@@ -18,14 +88,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .loading-progress circle {
     fill: none;
-    stroke: #e1e1e1;
+    stroke: #333;
     stroke-width: 0.6rem;
     transform-origin: 50% 50%;
     transform: rotate(-90deg);
 }
 
 .loading-progress circle:last-child {
-    stroke: #9b4dca;
+    stroke: #bb86fc;
     stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
     transition: stroke-dasharray 0.05s ease-in-out;
 }
