@@ -1,6 +1,8 @@
 # ExpressZen
 
-ExpressZen is a highly differentiated Regular Expression testing and building tool built with Blazor WebAssembly (WASM). It helps users build, test, and understand regular expressions using a neuro-inclusive "Zen Mode" UI, all executing locally in the browser with .NET 8.
+> A highly differentiated Regular Expression testing and building tool built with Blazor WebAssembly.
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=flat-square)](https://higherkey.github.io/ExpressZen/)
 
 ## Features
 
